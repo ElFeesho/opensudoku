@@ -20,12 +20,8 @@
 
 package cz.romario.opensudoku.gui;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,24 +31,29 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.SimpleCursorAdapter.ViewBinder;
+import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.util.Date;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.db.SudokuColumns;
 import cz.romario.opensudoku.db.SudokuDatabase;
-import cz.romario.opensudoku.game.FolderInfo;
 import cz.romario.opensudoku.game.CellCollection;
+import cz.romario.opensudoku.game.FolderInfo;
 import cz.romario.opensudoku.game.SudokuGame;
 import cz.romario.opensudoku.gui.FolderDetailLoader.FolderDetailCallback;
 import cz.romario.opensudoku.utils.AndroidUtils;
@@ -62,7 +63,7 @@ import cz.romario.opensudoku.utils.AndroidUtils;
  *
  * @author romario
  */
-public class SudokuListActivity extends ListActivity {
+public class SudokuListActivity extends AppCompatActivity {
 
 	public static final String EXTRA_FOLDER_ID = "folder_id";
 
@@ -101,18 +102,25 @@ public class SudokuListActivity extends ListActivity {
 	private Cursor mCursor;
 	private SudokuDatabase mDatabase;
 	private FolderDetailLoader mFolderDetailLoader;
+	private ListView mListView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		// theme must be set before setContentView
 		AndroidUtils.setThemeFromPreferences(this);
-
 		setContentView(R.layout.sudoku_list);
+		mListView = (ListView) findViewById(R.id.list);
+		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				playSudoku(id);
+			}
+		});
+
 		mFilterStatus = (TextView) findViewById(R.id.filter_status);
 
-		getListView().setOnCreateContextMenuListener(this);
+		mListView.setOnCreateContextMenuListener(this);
 		setDefaultKeyMode(DEFAULT_KEYS_SHORTCUT);
 
 		mDatabase = new SudokuDatabase(getApplicationContext());
@@ -141,7 +149,7 @@ public class SudokuListActivity extends ListActivity {
 						R.id.last_played, R.id.created, R.id.note});
 		mAdapter.setViewBinder(new SudokuListViewBinder(this));
 		updateList();
-		setListAdapter(mAdapter);
+		mListView.setAdapter(mAdapter);
 	}
 
 	@Override
@@ -346,7 +354,7 @@ public class SudokuListActivity extends ListActivity {
 			return;
 		}
 
-		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		Cursor cursor = (Cursor) mAdapter.getItem(info.position);
 		if (cursor == null) {
 			// For some reason the requested item isn't available, do nothing
 			return;
@@ -420,11 +428,6 @@ public class SudokuListActivity extends ListActivity {
 			}
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		playSudoku(id);
 	}
 
 	/**
