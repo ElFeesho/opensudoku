@@ -2,3 +2,6 @@ OpenSudoku/bin/
 OpenSudoku/gen/
 .gradle
 build
+local.properties
+*.iml
+.idea

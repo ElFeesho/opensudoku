@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "cz.romario.opensudoku"
-        minSdkVersion 10
-        targetSdkVersion 10
+        minSdkVersion 3
+        targetSdkVersion 4
         versionCode 1105
         versionName "1.1.5"
     }
