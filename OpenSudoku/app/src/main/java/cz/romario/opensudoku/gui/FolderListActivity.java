@@ -22,7 +22,6 @@ package cz.romario.opensudoku.gui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +29,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -43,6 +43,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.SimpleCursorAdapter.ViewBinder;
 import android.widget.TextView;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.db.FolderColumns;
 import cz.romario.opensudoku.db.SudokuDatabase;
@@ -55,7 +56,7 @@ import cz.romario.opensudoku.utils.AndroidUtils;
  *
  * @author romario
  */
-public class FolderListActivity extends ListActivity {
+public class FolderListActivity extends AppCompatActivity {
 
 	public static final int MENU_ITEM_ADD = Menu.FIRST;
 	public static final int MENU_ITEM_RENAME = Menu.FIRST + 1;
@@ -81,17 +82,30 @@ public class FolderListActivity extends ListActivity {
 	private TextView mRenameFolderNameInput;
 	private long mRenameFolderID;
 	private long mDeleteFolderID;
+	private ListView mListView;
+	private SimpleCursorAdapter mAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.folder_list);
-		View getMorePuzzles = (View) findViewById(R.id.get_more_puzzles);
+
+		mListView = (ListView) findViewById(android.R.id.list);
+		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Intent i = new Intent(FolderListActivity.this, SudokuListActivity.class);
+				i.putExtra(SudokuListActivity.EXTRA_FOLDER_ID, id);
+				startActivity(i);
+			}
+		});
+
+		View getMorePuzzles = findViewById(R.id.get_more_puzzles);
 
 		setDefaultKeyMode(DEFAULT_KEYS_SHORTCUT);
 		// Inform the list we provide context menus for items
-		getListView().setOnCreateContextMenuListener(this);
+		mListView.setOnCreateContextMenuListener(this);
 
 		getMorePuzzles.setOnClickListener(new OnClickListener() {
 			@Override
@@ -105,13 +119,13 @@ public class FolderListActivity extends ListActivity {
 		mDatabase = new SudokuDatabase(getApplicationContext());
 		mCursor = mDatabase.getFolderList();
 		startManagingCursor(mCursor);
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.folder_list_item,
+		mAdapter = new SimpleCursorAdapter(this, R.layout.folder_list_item,
 				mCursor, new String[]{FolderColumns.NAME, FolderColumns._ID},
 				new int[]{R.id.name, R.id.detail});
 		mFolderListBinder = new FolderListViewBinder(this);
-		adapter.setViewBinder(mFolderListBinder);
+		mAdapter.setViewBinder(mFolderListBinder);
 
-		setListAdapter(adapter);
+		mListView.setAdapter(mAdapter);
 
 		// show changelog on first run
 		Changelog changelog = new Changelog(this);
@@ -191,7 +205,7 @@ public class FolderListActivity extends ListActivity {
 			return;
 		}
 
-		Cursor cursor = (Cursor) getListAdapter().getItem(info.position);
+		Cursor cursor = (Cursor) mAdapter.getItem(info.position);
 		if (cursor == null) {
 			// For some reason the requested item isn't available, do nothing
 			return;
@@ -348,13 +362,6 @@ public class FolderListActivity extends ListActivity {
 				return true;
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Intent i = new Intent(this, SudokuListActivity.class);
-		i.putExtra(SudokuListActivity.EXTRA_FOLDER_ID, id);
-		startActivity(i);
 	}
 
 	private void updateList() {
