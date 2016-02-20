@@ -30,6 +30,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -90,6 +91,8 @@ public class FolderListActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.folder_list);
+
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
 		mListView = (ListView) findViewById(android.R.id.list);
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
