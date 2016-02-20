@@ -150,8 +150,8 @@ public class SudokuEditActivity extends Activity {
 		for (InputMethod im : mInputMethods.getInputMethods()) {
 			im.setEnabled(false);
 		}
-		mInputMethods.getInputMethod(IMControlPanel.INPUT_METHOD_NUMPAD).setEnabled(true);
-		mInputMethods.activateInputMethod(IMControlPanel.INPUT_METHOD_NUMPAD);
+		mInputMethods.getInputMethod().setEnabled(true);
+		mInputMethods.activateInputMethod();
 	}
 
 	@Override

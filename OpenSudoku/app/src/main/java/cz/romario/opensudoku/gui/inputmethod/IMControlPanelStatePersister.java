@@ -39,7 +39,7 @@ public class IMControlPanelStatePersister {
 		StateBundle cpState = new StateBundle(mPreferences, PREFIX + ".", false);
 		int methodId = cpState.getInt("activeMethodIndex", 0);
 		if (methodId != -1) {
-			controlPanel.activateInputMethod(methodId);
+			controlPanel.activateInputMethod();
 		}
 
 		// restore state of all input methods

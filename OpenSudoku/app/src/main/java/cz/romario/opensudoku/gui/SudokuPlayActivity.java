@@ -31,12 +31,10 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -47,9 +45,6 @@ import cz.romario.opensudoku.game.SudokuGame.OnPuzzleSolvedListener;
 import cz.romario.opensudoku.gui.inputmethod.IMControlPanel;
 import cz.romario.opensudoku.gui.inputmethod.IMControlPanelStatePersister;
 import cz.romario.opensudoku.gui.inputmethod.IMNumpad;
-import cz.romario.opensudoku.gui.inputmethod.IMPopup;
-import cz.romario.opensudoku.gui.inputmethod.IMSingleNumber;
-import cz.romario.opensudoku.utils.AndroidUtils;
 
 /*
  */
@@ -89,8 +84,7 @@ public class SudokuPlayActivity extends AppCompatActivity {
 
 	private IMControlPanel mIMControlPanel;
 	private IMControlPanelStatePersister mIMControlPanelStatePersister;
-	private IMPopup mIMPopup;
-	private IMSingleNumber mIMSingleNumber;
+
 	private IMNumpad mIMNumpad;
 
 	private boolean mShowTime = true;
@@ -104,20 +98,6 @@ public class SudokuPlayActivity extends AppCompatActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// go fullscreen for devices with QVGA screen (only way I found
-		// how to fit UI on the screen)
-		Display display = getWindowManager().getDefaultDisplay();
-		if ((display.getWidth() == 240 || display.getWidth() == 320)
-				&& (display.getHeight() == 240 || display.getHeight() == 320)) {
-			requestWindowFeature(Window.FEATURE_NO_TITLE);
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			mFullScreen = true;
-		}
-
-		// theme must be set before setContentView
-		AndroidUtils.setThemeFromPreferences(this);
 
 		setContentView(R.layout.sudoku_play);
 
@@ -165,9 +145,7 @@ public class SudokuPlayActivity extends AppCompatActivity {
 
 		mIMControlPanelStatePersister = new IMControlPanelStatePersister(this);
 
-		mIMPopup = mIMControlPanel.getInputMethod(IMControlPanel.INPUT_METHOD_POPUP);
-		mIMSingleNumber = mIMControlPanel.getInputMethod(IMControlPanel.INPUT_METHOD_SINGLE_NUMBER);
-		mIMNumpad = mIMControlPanel.getInputMethod(IMControlPanel.INPUT_METHOD_NUMPAD);
+		mIMNumpad = mIMControlPanel.getInputMethod();
 	}
 
 	@Override
@@ -195,14 +173,8 @@ public class SudokuPlayActivity extends AppCompatActivity {
 		}
 		mTimeLabel.setVisibility(mFullScreen && mShowTime ? View.VISIBLE : View.GONE);
 
-		mIMPopup.setEnabled(gameSettings.getBoolean("im_popup", true));
-		mIMSingleNumber.setEnabled(gameSettings.getBoolean("im_single_number", true));
 		mIMNumpad.setEnabled(gameSettings.getBoolean("im_numpad", true));
 		mIMNumpad.setMoveCellSelectionOnPress(gameSettings.getBoolean("im_numpad_move_right", false));
-		mIMPopup.setHighlightCompletedValues(gameSettings.getBoolean("highlight_completed_values", true));
-		mIMPopup.setShowNumberTotals(gameSettings.getBoolean("show_number_totals", false));
-		mIMSingleNumber.setHighlightCompletedValues(gameSettings.getBoolean("highlight_completed_values", true));
-		mIMSingleNumber.setShowNumberTotals(gameSettings.getBoolean("show_number_totals", false));
 		mIMNumpad.setHighlightCompletedValues(gameSettings.getBoolean("highlight_completed_values", true));
 		mIMNumpad.setShowNumberTotals(gameSettings.getBoolean("show_number_totals", false));
 
