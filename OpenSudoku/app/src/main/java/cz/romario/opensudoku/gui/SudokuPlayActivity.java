@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -119,6 +120,8 @@ public class SudokuPlayActivity extends AppCompatActivity {
 		AndroidUtils.setThemeFromPreferences(this);
 
 		setContentView(R.layout.sudoku_play);
+
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
 		mRootLayout = (ViewGroup) findViewById(R.id.root_layout);
 		mSudokuBoard = (SudokuBoardView) findViewById(R.id.sudoku_board);
