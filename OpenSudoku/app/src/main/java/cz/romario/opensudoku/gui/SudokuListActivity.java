@@ -42,7 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.SimpleCursorAdapter.ViewBinder;
 import android.widget.TextView;
@@ -112,9 +112,10 @@ public class SudokuListActivity extends AppCompatActivity {
 						case SudokuGame.GAME_STATE_PLAYING:
 							stateString = mContext.getString(R.string.playing);
 							break;
+						default:
+							stateString = "Unstarted";
+							break;
 					}
-					label.setVisibility(stateString == null ? View.GONE
-							: View.VISIBLE);
 					label.setText(stateString);
 					if (state == SudokuGame.GAME_STATE_COMPLETED) {
 						// TODO: read colors from android resources
@@ -141,44 +142,7 @@ public class SudokuListActivity extends AppCompatActivity {
 						label.setTextColor(Color.rgb(255, 255, 255));
 					}
 					break;
-				case R.id.last_played:
-					long lastPlayed = c.getLong(columnIndex);
-					label = ((TextView) view);
-					String lastPlayedString = null;
-					if (lastPlayed != 0) {
-						lastPlayedString = mContext.getString(R.string.last_played_at,
-								getDateAndTimeForHumans(lastPlayed));
-					}
-					label.setVisibility(lastPlayedString == null ? View.GONE
-							: View.VISIBLE);
-					label.setText(lastPlayedString);
-					break;
-				case R.id.created:
-					long created = c.getLong(columnIndex);
-					label = ((TextView) view);
-					String createdString = null;
-					if (created != 0) {
-						createdString = mContext.getString(R.string.created_at,
-								getDateAndTimeForHumans(created));
-					}
-					// TODO: when GONE, note is not correctly aligned below last_played
-					label.setVisibility(createdString == null ? View.INVISIBLE
-							: View.VISIBLE);
-					label.setText(createdString);
-					break;
-				case R.id.note:
-					String note = c.getString(columnIndex);
-					label = ((TextView) view);
-					if (note == null || note.trim() == "") {
-						((TextView) view).setVisibility(View.GONE);
-					} else {
-						((TextView) view).setText(note);
-					}
-					label
-							.setVisibility((note == null || note.trim().equals("")) ? View.GONE
-									: View.VISIBLE);
-					label.setText(note);
-					break;
+
 			}
 
 			return true;
@@ -231,7 +195,7 @@ public class SudokuListActivity extends AppCompatActivity {
 	private Cursor mCursor;
 	private SudokuDatabase mDatabase;
 	private FolderDetailLoader mFolderDetailLoader;
-	private ListView mListView;
+	private GridView mListView;
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -414,7 +378,7 @@ public class SudokuListActivity extends AppCompatActivity {
 		// theme must be set before setContentView
 		setContentView(R.layout.sudoku_list);
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-		mListView = (ListView) findViewById(R.id.list);
+		mListView = (GridView) findViewById(R.id.list);
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -449,8 +413,7 @@ public class SudokuListActivity extends AppCompatActivity {
 				null, new String[]{SudokuColumns.DATA, SudokuColumns.STATE,
 				SudokuColumns.TIME, SudokuColumns.LAST_PLAYED,
 				SudokuColumns.CREATED, SudokuColumns.PUZZLE_NOTE},
-				new int[]{R.id.sudoku_board, R.id.state, R.id.time,
-						R.id.last_played, R.id.created, R.id.note});
+				new int[]{R.id.sudoku_board, R.id.state, R.id.time});
 		mAdapter.setViewBinder(new SudokuListViewBinder(this));
 		updateList();
 		mListView.setAdapter(mAdapter);
