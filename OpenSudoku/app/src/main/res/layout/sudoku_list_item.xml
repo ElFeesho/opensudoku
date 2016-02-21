@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="12dp">
@@ -9,6 +9,8 @@
         android:id="@+id/sudoku_board"
         android:layout_width="150dp"
         android:layout_height="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginRight="4sp"
         />
 
@@ -20,6 +22,7 @@
         android:layout_alignLeft="@+id/sudoku_board"
         android:layout_alignRight="@+id/sudoku_board"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_centerHorizontal="true"
         android:background="#8000"
         android:gravity="center"
         android:text="state"
@@ -34,6 +37,7 @@
         android:layout_above="@+id/state"
         android:layout_alignLeft="@+id/sudoku_board"
         android:layout_alignRight="@+id/sudoku_board"
+        android:layout_centerHorizontal="true"
         android:background="#8000"
         android:gravity="center"
         android:text="time"

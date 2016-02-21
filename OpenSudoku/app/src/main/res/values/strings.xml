@@ -43,7 +43,7 @@
 	<string name="n_unsolved">%s unsolved</string>
 	<string name="n_playing">%s playing</string>
 
-	<string name="solved">Solved</string>
+	<string name="solved">\u2714 Solved</string>
 	<string name="playing">Playing</string>
 	<string name="not_started">Not started</string>
 	<string name="last_played_at">Last played %s</string>
