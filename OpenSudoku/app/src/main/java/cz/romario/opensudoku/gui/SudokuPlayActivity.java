@@ -26,16 +26,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.TextView;
 
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.db.SudokuDatabase;
@@ -45,12 +41,8 @@ import cz.romario.opensudoku.gui.inputmethod.IMControlPanel;
 import cz.romario.opensudoku.gui.inputmethod.IMControlPanelStatePersister;
 import cz.romario.opensudoku.gui.inputmethod.IMNumpad;
 
-/*
- */
 public class SudokuPlayActivity extends AppCompatActivity {
 
-    // This class implements the game clock.  All it does is update the
-    // status each tick.
     private final class GameTimer extends Timer {
 
         GameTimer() {
@@ -60,8 +52,6 @@ public class SudokuPlayActivity extends AppCompatActivity {
         @Override
         protected boolean step(int count, long time) {
             updateTime();
-
-            // Run until explicitly stopped.
             return false;
         }
     }
@@ -83,17 +73,14 @@ public class SudokuPlayActivity extends AppCompatActivity {
     private long mSudokuGameID;
     private SudokuGame mSudokuGame;
     private SudokuDatabase mDatabase;
-    private Handler mGuiHandler;
     private ViewGroup mRootLayout;
     private SudokuBoardView mSudokuBoard;
-    private TextView mTimeLabel;
     private IMControlPanel mIMControlPanel;
     private IMControlPanelStatePersister mIMControlPanelStatePersister;
     private IMNumpad mIMNumpad;
     private boolean mShowTime = true;
     private GameTimer mGameTimer;
     private GameTimeFormat mGameTimeFormatter = new GameTimeFormat();
-    private boolean mFullScreen;
     private boolean mFillInNotesEnabled = false;
     private HintsQueue mHintsQueue;
     /**
@@ -103,7 +90,7 @@ public class SudokuPlayActivity extends AppCompatActivity {
         @Override
         public void onPuzzleSolved() {
             mSudokuBoard.setReadOnly(true);
-            showDialog(DIALOG_WELL_DONE);
+            showCompletionDialog();
         }
     };
 
@@ -117,13 +104,10 @@ public class SudokuPlayActivity extends AppCompatActivity {
 
         mRootLayout = (ViewGroup) findViewById(R.id.root_layout);
         mSudokuBoard = (SudokuBoardView) findViewById(R.id.sudoku_board);
-        mTimeLabel = (TextView) findViewById(R.id.time_label);
-
+        
         mDatabase = new SudokuDatabase(getApplicationContext());
         mHintsQueue = new HintsQueue(this);
         mGameTimer = new GameTimer();
-
-        mGuiHandler = new Handler();
 
         // create sudoku game instance
         if (savedInstanceState == null) {
@@ -158,25 +142,6 @@ public class SudokuPlayActivity extends AppCompatActivity {
         mIMControlPanelStatePersister = new IMControlPanelStatePersister(this);
 
         mIMNumpad = mIMControlPanel.getInputMethod();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-
-        if (hasFocus) {
-            // FIXME: When activity is resumed, title isn't sometimes hidden properly (there is black
-            // empty space at the top of the screen). This is desperate workaround.
-            if (mFullScreen) {
-                mGuiHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-                        mRootLayout.requestLayout();
-                    }
-                }, 1000);
-            }
-        }
     }
 
     @Override
@@ -250,10 +215,10 @@ public class SudokuPlayActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_ITEM_RESTART:
-                showDialog(DIALOG_RESTART);
+                showRestartDialog();
                 return true;
             case MENU_ITEM_CLEAR_ALL_NOTES:
-                showDialog(DIALOG_CLEAR_NOTES);
+                showClearNotesDialog();
                 return true;
             case MENU_ITEM_FILL_IN_NOTES:
                 mSudokuGame.fillInNotes();
@@ -273,10 +238,26 @@ public class SudokuPlayActivity extends AppCompatActivity {
                 mSudokuGame.setUndoCheckpoint();
                 return true;
             case MENU_ITEM_UNDO_TO_CHECKPOINT:
-                showDialog(DIALOG_UNDO_TO_CHECKPOINT);
+                showUndoUntilCheckpointDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showCompletionDialog() {
+        showDialog(DIALOG_WELL_DONE);
+    }
+
+    private void showUndoUntilCheckpointDialog() {
+        showDialog(DIALOG_UNDO_TO_CHECKPOINT);
+    }
+
+    private void showClearNotesDialog() {
+        showDialog(DIALOG_CLEAR_NOTES);
+    }
+
+    private void showRestartDialog() {
+        showDialog(DIALOG_RESTART);
     }
 
     /**
@@ -310,7 +291,6 @@ public class SudokuPlayActivity extends AppCompatActivity {
                 mGameTimer.start();
             }
         }
-        mTimeLabel.setVisibility(mFullScreen && mShowTime ? View.VISIBLE : View.GONE);
 
         mIMNumpad.setEnabled(gameSettings.getBoolean("im_numpad", true));
         mIMNumpad.setMoveCellSelectionOnPress(gameSettings.getBoolean("im_numpad_move_right", false));
@@ -425,11 +405,6 @@ public class SudokuPlayActivity extends AppCompatActivity {
      * Update the time of game-play.
      */
     void updateTime() {
-        if (mShowTime) {
-            setTitle(mGameTimeFormatter.format(mSudokuGame.getTime()));
-            mTimeLabel.setText(mGameTimeFormatter.format(mSudokuGame.getTime()));
-        } else {
-            setTitle(R.string.app_name);
-        }
+        setTitle(mGameTimeFormatter.format(mSudokuGame.getTime()));
     }
 }
