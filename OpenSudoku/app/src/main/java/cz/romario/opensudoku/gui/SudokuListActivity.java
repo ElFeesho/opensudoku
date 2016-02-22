@@ -31,6 +31,9 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -280,7 +283,7 @@ public class SudokuListActivity extends AppCompatActivity {
 
 		switch (item.getItemId()) {
 			case MENU_ITEM_PLAY:
-				playSudoku(info.id);
+				startActivity(playSudoku(info.id));
 				return true;
 			case MENU_ITEM_EDIT:
 				Intent i = new Intent(this, SudokuEditActivity.class);
@@ -366,10 +369,10 @@ public class SudokuListActivity extends AppCompatActivity {
 		});
 	}
 
-	private void playSudoku(long sudokuID) {
+	private Intent playSudoku(long sudokuID) {
 		Intent i = new Intent(SudokuListActivity.this, SudokuPlayActivity.class);
 		i.putExtra(SudokuPlayActivity.EXTRA_SUDOKU_ID, sudokuID);
-		startActivity(i);
+		return i;
 	}
 
 	@Override
@@ -382,7 +385,8 @@ public class SudokuListActivity extends AppCompatActivity {
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				playSudoku(id);
+				Intent intent = playSudoku(id);
+				ActivityCompat.startActivity(SudokuListActivity.this, intent, ActivityOptionsCompat.makeSceneTransitionAnimation(SudokuListActivity.this, new Pair<>(view, "board")).toBundle());
 			}
 		});
 
