@@ -20,9 +20,6 @@
 
 package cz.romario.opensudoku.gui.inputmethod;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.Context;
 import android.graphics.LightingColorFilter;
 import android.os.Handler;
@@ -31,12 +28,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.game.Cell;
 import cz.romario.opensudoku.game.CellCollection;
+import cz.romario.opensudoku.game.CellCollection.OnChangeListener;
 import cz.romario.opensudoku.game.CellNote;
 import cz.romario.opensudoku.game.SudokuGame;
-import cz.romario.opensudoku.game.CellCollection.OnChangeListener;
 import cz.romario.opensudoku.gui.HintsQueue;
 import cz.romario.opensudoku.gui.SudokuBoardView;
 import cz.romario.opensudoku.gui.inputmethod.IMControlPanelStatePersister.StateBundle;
@@ -61,6 +62,24 @@ public class IMSingleNumber extends InputMethod {
 	private Handler mGuiHandler;
 	private Map<Integer, Button> mNumberButtons;
 	private ImageButton mSwitchNumNoteButton;
+	private OnClickListener mNumberButtonClicked = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			mSelectedNumber = (Integer) v.getTag();
+
+			update();
+		}
+	};
+	private OnChangeListener mOnCellsChangeListener = new OnChangeListener() {
+
+		@Override
+		public void onChange() {
+			if (mActive) {
+				update();
+			}
+		}
+	};
 
 	public IMSingleNumber() {
 		super();
@@ -150,26 +169,6 @@ public class IMSingleNumber extends InputMethod {
 		return controlPanel;
 	}
 
-	private OnClickListener mNumberButtonClicked = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			mSelectedNumber = (Integer) v.getTag();
-
-			update();
-		}
-	};
-
-	private OnChangeListener mOnCellsChangeListener = new OnChangeListener() {
-
-		@Override
-		public void onChange() {
-			if (mActive) {
-				update();
-			}
-		}
-	};
-
 	private void update() {
 		switch (mEditMode) {
 			case MODE_EDIT_NOTE:
@@ -242,7 +241,7 @@ public class IMSingleNumber extends InputMethod {
 		switch (mEditMode) {
 			case MODE_EDIT_NOTE:
 				if (selNumber == 0) {
-					mGame.setCellNote(cell, CellNote.EMPTY);
+					mGame.setCellNote(cell, CellNote.Companion.getEMPTY());
 				} else if (selNumber > 0 && selNumber <= 9) {
 					mGame.setCellNote(cell, cell.getNote().toggleNumber(selNumber));
 				}

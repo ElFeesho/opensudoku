@@ -20,13 +20,14 @@
 
 package cz.romario.opensudoku.gui.inputmethod;
 
-import java.util.Map;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import java.util.Map;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.game.Cell;
 import cz.romario.opensudoku.game.CellCollection;
@@ -41,6 +42,40 @@ public class IMPopup extends InputMethod {
 
 	private IMPopupDialog mEditCellDialog;
 	private Cell mSelectedCell;
+	/**
+	 * Occurs when user selects number in EditCellDialog.
+	 */
+	private OnNumberEditListener mOnNumberEditListener = new OnNumberEditListener() {
+		@Override
+		public boolean onNumberEdit(int number) {
+			if (number != -1 && mSelectedCell != null) {
+				mGame.setCellValue(mSelectedCell, number);
+			}
+			return true;
+		}
+	};
+	/**
+	 * Occurs when user edits note in EditCellDialog
+	 */
+	private OnNoteEditListener mOnNoteEditListener = new OnNoteEditListener() {
+		@Override
+		public boolean onNoteEdit(Integer[] numbers) {
+			if (mSelectedCell != null) {
+				mGame.setCellNote(mSelectedCell, CellNote.Companion.fromIntArray(numbers));
+			}
+			return true;
+		}
+	};
+	/**
+	 * Occurs when popup dialog is closed.
+	 */
+	private OnDismissListener mOnPopupDismissedListener = new OnDismissListener() {
+
+		@Override
+		public void onDismiss(DialogInterface dialog) {
+			mBoard.hideTouchedCellHint();
+		}
+	};
 
 	public boolean getHighlightCompletedValues() {
 		return mHighlightCompletedValues;
@@ -145,42 +180,5 @@ public class IMPopup extends InputMethod {
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		return inflater.inflate(R.layout.im_popup, null);
 	}
-
-	/**
-	 * Occurs when user selects number in EditCellDialog.
-	 */
-	private OnNumberEditListener mOnNumberEditListener = new OnNumberEditListener() {
-		@Override
-		public boolean onNumberEdit(int number) {
-			if (number != -1 && mSelectedCell != null) {
-				mGame.setCellValue(mSelectedCell, number);
-			}
-			return true;
-		}
-	};
-
-	/**
-	 * Occurs when user edits note in EditCellDialog
-	 */
-	private OnNoteEditListener mOnNoteEditListener = new OnNoteEditListener() {
-		@Override
-		public boolean onNoteEdit(Integer[] numbers) {
-			if (mSelectedCell != null) {
-				mGame.setCellNote(mSelectedCell, CellNote.fromIntArray(numbers));
-			}
-			return true;
-		}
-	};
-
-	/**
-	 * Occurs when popup dialog is closed.
-	 */
-	private OnDismissListener mOnPopupDismissedListener = new OnDismissListener() {
-
-		@Override
-		public void onDismiss(DialogInterface dialog) {
-			mBoard.hideTouchedCellHint();
-		}
-	};
 
 }

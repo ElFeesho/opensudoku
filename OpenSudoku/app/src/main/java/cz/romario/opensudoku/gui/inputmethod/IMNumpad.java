@@ -20,40 +20,77 @@
 
 package cz.romario.opensudoku.gui.inputmethod;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.game.Cell;
 import cz.romario.opensudoku.game.CellCollection;
+import cz.romario.opensudoku.game.CellCollection.OnChangeListener;
 import cz.romario.opensudoku.game.CellNote;
 import cz.romario.opensudoku.game.SudokuGame;
-import cz.romario.opensudoku.game.CellCollection.OnChangeListener;
 import cz.romario.opensudoku.gui.HintsQueue;
 import cz.romario.opensudoku.gui.SudokuBoardView;
 import cz.romario.opensudoku.gui.inputmethod.IMControlPanelStatePersister.StateBundle;
 
 public class IMNumpad extends InputMethod {
 
+	private static final int MODE_EDIT_VALUE = 0;
+	private static final int MODE_EDIT_NOTE = 1;
 	private boolean moveCellSelectionOnPress = true;
 	private boolean mHighlightCompletedValues = true;
 	private boolean mShowNumberTotals = false;
-
-	private static final int MODE_EDIT_VALUE = 0;
-	private static final int MODE_EDIT_NOTE = 1;
-
 	private Cell mSelectedCell;
 	private ImageButton mSwitchNumNoteButton;
 
 	private int mEditMode = MODE_EDIT_VALUE;
 
 	private Map<Integer, Button> mNumberButtons;
+	private OnClickListener mNumberButtonClick = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			int selNumber = (Integer) v.getTag();
+			Cell selCell = mSelectedCell;
+
+			if (selCell != null) {
+				switch (mEditMode) {
+					case MODE_EDIT_NOTE:
+						if (selNumber == 0) {
+							mGame.setCellNote(selCell, CellNote.Companion.getEMPTY());
+						} else if (selNumber > 0 && selNumber <= 9) {
+							mGame.setCellNote(selCell, selCell.getNote().toggleNumber(selNumber));
+						}
+						break;
+					case MODE_EDIT_VALUE:
+						if (selNumber >= 0 && selNumber <= 9) {
+							mGame.setCellValue(selCell, selNumber);
+							if (isMoveCellSelectionOnPress()) {
+								mBoard.moveCellSelectionRight();
+							}
+						}
+						break;
+				}
+			}
+		}
+
+	};
+	private OnChangeListener mOnCellsChangeListener = new OnChangeListener() {
+
+		@Override
+		public void onChange() {
+			if (mActive) {
+				update();
+			}
+		}
+	};
 
 	public boolean isMoveCellSelectionOnPress() {
 		return moveCellSelectionOnPress;
@@ -157,47 +194,6 @@ public class IMNumpad extends InputMethod {
 	protected void onCellSelected(Cell cell) {
 		mSelectedCell = cell;
 	}
-
-	private OnClickListener mNumberButtonClick = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			int selNumber = (Integer) v.getTag();
-			Cell selCell = mSelectedCell;
-
-			if (selCell != null) {
-				switch (mEditMode) {
-					case MODE_EDIT_NOTE:
-						if (selNumber == 0) {
-							mGame.setCellNote(selCell, CellNote.EMPTY);
-						} else if (selNumber > 0 && selNumber <= 9) {
-							mGame.setCellNote(selCell, selCell.getNote().toggleNumber(selNumber));
-						}
-						break;
-					case MODE_EDIT_VALUE:
-						if (selNumber >= 0 && selNumber <= 9) {
-							mGame.setCellValue(selCell, selNumber);
-							if (isMoveCellSelectionOnPress()) {
-								mBoard.moveCellSelectionRight();
-							}
-						}
-						break;
-				}
-			}
-		}
-
-	};
-
-	private OnChangeListener mOnCellsChangeListener = new OnChangeListener() {
-
-		@Override
-		public void onChange() {
-			if (mActive) {
-				update();
-			}
-		}
-	};
-
 
 	private void update() {
 		switch (mEditMode) {

@@ -1,9 +1,10 @@
 package cz.romario.opensudoku.game.command;
 
+import android.os.Bundle;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import android.os.Bundle;
 import cz.romario.opensudoku.game.Cell;
 import cz.romario.opensudoku.game.CellCollection;
 import cz.romario.opensudoku.game.CellGroup;
@@ -11,6 +12,18 @@ import cz.romario.opensudoku.game.CellNote;
 
 public class FillInNotesCommand extends AbstractCellCommand {
 
+	private static class NoteEntry {
+		public int rowIndex;
+		public int colIndex;
+		public CellNote note;
+
+		public NoteEntry(int rowIndex, int colIndex, CellNote note) {
+			this.rowIndex = rowIndex;
+			this.colIndex = colIndex;
+			this.note = note;
+		}
+
+	}
 	private List<NoteEntry> mOldNotes = new ArrayList<NoteEntry>();
 
 	public FillInNotesCommand() {
@@ -46,7 +59,7 @@ public class FillInNotesCommand extends AbstractCellCommand {
 		String[] notes = inState.getStringArray("notes");
 
 		for (int i = 0; i < rows.length; i++) {
-			mOldNotes.add(new NoteEntry(rows[i], cols[i], CellNote
+			mOldNotes.add(new NoteEntry(rows[i], cols[i], CellNote.Companion
 					.deserialize(notes[i])));
 		}
 	}
@@ -81,18 +94,5 @@ public class FillInNotesCommand extends AbstractCellCommand {
 		for (NoteEntry ne : mOldNotes) {
 			cells.getCell(ne.rowIndex, ne.colIndex).setNote(ne.note);
 		}
-	}
-
-	private static class NoteEntry {
-		public int rowIndex;
-		public int colIndex;
-		public CellNote note;
-
-		public NoteEntry(int rowIndex, int colIndex, CellNote note) {
-			this.rowIndex = rowIndex;
-			this.colIndex = colIndex;
-			this.note = note;
-		}
-
 	}
 }

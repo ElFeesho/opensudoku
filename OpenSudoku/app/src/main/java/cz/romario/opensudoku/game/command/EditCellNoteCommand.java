@@ -21,6 +21,7 @@
 package cz.romario.opensudoku.game.command;
 
 import android.os.Bundle;
+
 import cz.romario.opensudoku.game.Cell;
 import cz.romario.opensudoku.game.CellNote;
 
@@ -57,8 +58,8 @@ public class EditCellNoteCommand extends AbstractCellCommand {
 
 		mCellRow = inState.getInt("cellRow");
 		mCellColumn = inState.getInt("cellColumn");
-		mNote = CellNote.deserialize(inState.getString("note"));
-		mOldNote = CellNote.deserialize(inState.getString("oldNote"));
+		mNote = CellNote.Companion.deserialize(inState.getString("note"));
+		mOldNote = CellNote.Companion.deserialize(inState.getString("oldNote"));
 	}
 
 	@Override
