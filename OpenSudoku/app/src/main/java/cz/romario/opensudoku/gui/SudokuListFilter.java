@@ -20,40 +20,41 @@
 
 package cz.romario.opensudoku.gui;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import android.content.Context;
 
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.utils.StringUtils;
 
 public class SudokuListFilter {
 
-	private Context mContext;
-
 	public boolean showStateNotStarted = true;
 	public boolean showStatePlaying = true;
 	public boolean showStateCompleted = true;
+    private String notStartedLabel;
+    private String playingLabel;
+    private String solvedLabel;
 
 	public SudokuListFilter(Context context) {
-		mContext = context;
-	}
+        notStartedLabel = context.getString(R.string.not_started);
+        playingLabel = context.getString(R.string.playing);
+        solvedLabel = context.getString(R.string.solved);
+    }
 
 	@Override
 	public String toString() {
-		List<String> visibleStates = new ArrayList<String>();
-		if (showStateNotStarted) {
-			visibleStates.add(mContext.getString(R.string.not_started));
-		}
+        List<String> visibleStates = new ArrayList<>();
+        if (showStateNotStarted) {
+            visibleStates.add(notStartedLabel);
+        }
 		if (showStatePlaying) {
-			visibleStates.add(mContext.getString(R.string.playing));
-		}
+            visibleStates.add(playingLabel);
+        }
 		if (showStateCompleted) {
-			visibleStates.add(mContext.getString(R.string.solved));
-		}
+            visibleStates.add(solvedLabel);
+        }
 		return StringUtils.join(visibleStates, ",");
 	}
-
-
 }
