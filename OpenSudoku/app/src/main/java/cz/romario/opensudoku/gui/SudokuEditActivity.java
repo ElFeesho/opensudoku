@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.db.SudokuDatabase;
 import cz.romario.opensudoku.game.SudokuGame;
@@ -138,7 +139,7 @@ public class SudokuEditActivity extends Activity {
 				mGame = mDatabase.getSudoku(mSudokuID);
 				mGame.getCells().markAllCellsAsEditable();
 			} else {
-				mGame = SudokuGame.createEmptyGame();
+				mGame = SudokuGame.Companion.createEmptyGame();
 			}
 		}
 		mBoard.setGame(mGame);

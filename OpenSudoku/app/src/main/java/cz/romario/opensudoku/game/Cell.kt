@@ -28,11 +28,11 @@ import java.util.*
  *
  * @author romario
  */
-class Cell private constructor(private var mValue: Int, private var mNote: CellNote?, editable: Boolean, valid: Boolean) {
+class Cell(private var cellValue: Int = 0, private var cellNote: CellNote = CellNote(), editable: Boolean = true, valid: Boolean = true) {
     // if cell is included in collection, here are some additional information
     // about collection and cell's position in it
-    private var mCellCollection: CellCollection? = null
-    private val mCellCollectionLock = Any()
+    private var cellCollection: CellCollection? = null
+    private val cellCollectionLock = Any()
     /**
      * Gets cell's row index within [CellCollection].
      *
@@ -73,35 +73,21 @@ class Cell private constructor(private var mValue: Int, private var mNote: CellN
      *
      * @return True if cell can be edited.
      */
-    var isEditable: Boolean = false
-        private set
+    var isEditable: Boolean = editable
+        set(value) {
+            field = value
+            onChange()
+        }
     /**
      * Returns true, if cell contains valid value according to sudoku rules.
      *
      * @return True, if cell contains valid value according to sudoku rules.
      */
-    var isValid: Boolean = false
-        private set
-
-    /**
-     * Creates empty editable cell.
-     */
-    constructor() : this(0, CellNote(), true, true) {}
-
-    /**
-     * Creates empty editable cell containing given value.
-     *
-     * @param value Value of the cell.
-     */
-    constructor(value: Int) : this(value, CellNote(), true, true)
-
-    init {
-        if (mValue < 0 || mValue > 9) {
-            throw IllegalArgumentException("Value must be between 0-9.")
+    var isValid: Boolean = valid
+        set(value) {
+            field = value
+            onChange()
         }
-        isEditable = editable
-        isValid = valid
-    }
 
     /**
      * Called when `Cell` is added to [CellCollection].
@@ -115,8 +101,8 @@ class Cell private constructor(private var mValue: Int, private var mNote: CellN
     fun initCollection(cellCollection: CellCollection, rowIndex: Int, colIndex: Int,
                        sector: CellGroup, row: CellGroup, column: CellGroup) {
 
-        synchronized(mCellCollectionLock) {
-            mCellCollection = cellCollection
+        synchronized(cellCollectionLock) {
+            this.cellCollection = cellCollection
         }
 
         this.rowIndex = rowIndex
@@ -141,12 +127,12 @@ class Cell private constructor(private var mValue: Int, private var mNote: CellN
      * @param value 1-9 or 0 if cell should be empty.
      */
     var value: Int
-        get() = mValue
+        get() = cellValue
         set(value) {
             if (value < 0 || value > 9) {
                 throw IllegalArgumentException("Value must be between 0-9.")
             }
-            mValue = value
+            cellValue = value
             onChange()
         }
 
@@ -161,33 +147,12 @@ class Cell private constructor(private var mValue: Int, private var mNote: CellN
      *
      * @param note Note attached to the cell
      */
-    var note: CellNote?
-        get() = mNote
+    var note: CellNote
+        get() = cellNote
         set(note) {
-            mNote = note
+            cellNote = note
             onChange()
         }
-
-    /**
-     * Sets whether cell can be edited.
-     *
-     * @param editable True, if cell should allow editing.
-     */
-    fun setEditable(editable: Boolean?) {
-        isEditable = editable!!
-        onChange()
-    }
-
-    /**
-     * Sets whether cell contains valid value according to sudoku rules.
-     *
-     * @param valid
-     */
-    fun setValid(valid: Boolean?) {
-        isValid = valid!!
-        onChange()
-    }
-
 
     /**
      * Appends string representation of this object to the given `StringBuilder`.
@@ -196,13 +161,16 @@ class Cell private constructor(private var mValue: Int, private var mNote: CellN
      * @param data
      */
     fun serialize(data: StringBuilder) {
-        data.append(mValue).append("|")
-        if (mNote == null || mNote!!.isEmpty) {
-            data.append("-").append("|")
+        data.append(cellValue)
+        data.append("|")
+
+        if (cellNote.isEmpty) {
+            data.append("-")
         } else {
-            mNote!!.serialize(data)
-            data.append("|")
+            cellNote.serialize(data)
         }
+
+        data.append("|")
         data.append(if (isEditable) "1" else "0").append("|")
     }
 
@@ -210,27 +178,17 @@ class Cell private constructor(private var mValue: Int, private var mNote: CellN
      * Notify CellCollection that something has changed.
      */
     private fun onChange() {
-        synchronized(mCellCollectionLock) {
-            if (mCellCollection != null) {
-                mCellCollection!!.onChange()
-            }
+        synchronized(cellCollectionLock) {
+            cellCollection?.onChange()
         }
     }
 
     companion object {
-
-
-        /**
-         * Creates instance from given `StringTokenizer`.
-         *
-         * @param data
-         * @return
-         */
         fun deserialize(data: StringTokenizer): Cell {
             val cell = Cell()
             cell.value = Integer.parseInt(data.nextToken())
             cell.note = CellNote.deserialize(data.nextToken())
-            cell.setEditable(data.nextToken() == "1")
+            cell.isEditable = (data.nextToken() == "1")
 
             return cell
         }

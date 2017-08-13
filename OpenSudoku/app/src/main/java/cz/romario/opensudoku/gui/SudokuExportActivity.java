@@ -1,8 +1,5 @@
 package cz.romario.opensudoku.gui;
 
-import java.io.File;
-import java.util.Date;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,13 +14,17 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.io.File;
+import java.util.Date;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.db.SudokuDatabase;
 import cz.romario.opensudoku.game.FolderInfo;
 import cz.romario.opensudoku.gui.exporting.FileExportTask;
+import cz.romario.opensudoku.gui.exporting.FileExportTask.OnExportFinishedListener;
 import cz.romario.opensudoku.gui.exporting.FileExportTaskParams;
 import cz.romario.opensudoku.gui.exporting.FileExportTaskResult;
-import cz.romario.opensudoku.gui.exporting.FileExportTask.OnExportFinishedListener;
 
 public class SudokuExportActivity extends Activity {
 
@@ -49,6 +50,12 @@ public class SudokuExportActivity extends Activity {
 	private EditText mFileNameEdit;
 	private EditText mDirectoryEdit;
 	private Button mSaveButton;
+    private OnClickListener mOnSaveClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            exportToFile();
+        }
+    };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,22 +94,14 @@ public class SudokuExportActivity extends Activity {
 				finish();
 				return;
 			}
-			fileName = folder.name + "-" + timestamp;
-			database.close();
+            fileName = folder.getName() + "-" + timestamp;
+            database.close();
 		}
 		mFileNameEdit.setText(fileName);
 
 
 		//showDialog(DIALOG_SELECT_EXPORT_METHOD);
 	}
-
-	private OnClickListener mOnSaveClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			exportToFile();
-		}
-	};
-
 
 	@Override
 	protected Dialog onCreateDialog(int id) {

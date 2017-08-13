@@ -59,25 +59,59 @@ import cz.romario.opensudoku.utils.AndroidUtils;
  */
 public class FolderListActivity extends AppCompatActivity {
 
-	public static final int MENU_ITEM_ADD = Menu.FIRST;
+    private static class FolderListViewBinder implements ViewBinder {
+        private Context mContext;
+        private FolderDetailLoader mDetailLoader;
+
+
+        public FolderListViewBinder(Context context) {
+            mContext = context;
+            mDetailLoader = new FolderDetailLoader(context);
+        }
+
+        @Override
+        public boolean setViewValue(View view, Cursor c, int columnIndex) {
+
+            switch (view.getId()) {
+                case R.id.name:
+                    ((TextView) view).setText(c.getString(columnIndex));
+                    break;
+                case R.id.detail:
+                    final long folderID = c.getLong(columnIndex);
+                    final TextView detailView = (TextView) view;
+                    detailView.setText(mContext.getString(R.string.loading));
+                    mDetailLoader.loadDetailAsync(folderID, new FolderDetailCallback() {
+                        @Override
+                        public void onLoaded(FolderInfo folderInfo) {
+                            if (folderInfo != null)
+                                detailView.setText(folderInfo.getDetail(mContext));
+                        }
+                    });
+            }
+
+            return true;
+        }
+
+        public void destroy() {
+            mDetailLoader.destroy();
+        }
+    }
+
+    public static final int MENU_ITEM_ADD = Menu.FIRST;
 	public static final int MENU_ITEM_RENAME = Menu.FIRST + 1;
 	public static final int MENU_ITEM_DELETE = Menu.FIRST + 2;
 	public static final int MENU_ITEM_ABOUT = Menu.FIRST + 3;
 	public static final int MENU_ITEM_EXPORT = Menu.FIRST + 4;
 	public static final int MENU_ITEM_EXPORT_ALL = Menu.FIRST + 5;
 	public static final int MENU_ITEM_IMPORT = Menu.FIRST + 6;
-
 	private static final int DIALOG_ABOUT = 0;
 	private static final int DIALOG_ADD_FOLDER = 1;
 	private static final int DIALOG_RENAME_FOLDER = 2;
 	private static final int DIALOG_DELETE_FOLDER = 3;
-
 	private static final String TAG = "FolderListActivity";
-
 	private Cursor mCursor;
 	private SudokuDatabase mDatabase;
 	private FolderListViewBinder mFolderListBinder;
-
 	// input parameters for dialogs
 	private TextView mAddFolderNameInput;
 	private TextView mRenameFolderNameInput;
@@ -297,15 +331,15 @@ public class FolderListActivity extends AppCompatActivity {
 				break;
 			case DIALOG_RENAME_FOLDER: {
 				FolderInfo folder = mDatabase.getFolderInfo(mRenameFolderID);
-				String folderName = folder != null ? folder.name : "";
-				dialog.setTitle(getString(R.string.rename_folder_title, folderName));
+                String folderName = folder != null ? folder.getName() : "";
+                dialog.setTitle(getString(R.string.rename_folder_title, folderName));
 				mRenameFolderNameInput.setText(folderName);
 				break;
 			}
 			case DIALOG_DELETE_FOLDER: {
 				FolderInfo folder = mDatabase.getFolderInfo(mDeleteFolderID);
-				String folderName = folder != null ? folder.name : "";
-				dialog.setTitle(getString(R.string.delete_folder_title, folderName));
+                String folderName = folder != null ? folder.getName() : "";
+                dialog.setTitle(getString(R.string.delete_folder_title, folderName));
 				break;
 			}
 		}
@@ -369,44 +403,6 @@ public class FolderListActivity extends AppCompatActivity {
 
 	private void updateList() {
 		mCursor.requery();
-	}
-
-	private static class FolderListViewBinder implements ViewBinder {
-		private Context mContext;
-		private FolderDetailLoader mDetailLoader;
-
-
-		public FolderListViewBinder(Context context) {
-			mContext = context;
-			mDetailLoader = new FolderDetailLoader(context);
-		}
-
-		@Override
-		public boolean setViewValue(View view, Cursor c, int columnIndex) {
-
-			switch (view.getId()) {
-				case R.id.name:
-					((TextView) view).setText(c.getString(columnIndex));
-					break;
-				case R.id.detail:
-					final long folderID = c.getLong(columnIndex);
-					final TextView detailView = (TextView) view;
-					detailView.setText(mContext.getString(R.string.loading));
-					mDetailLoader.loadDetailAsync(folderID, new FolderDetailCallback() {
-						@Override
-						public void onLoaded(FolderInfo folderInfo) {
-							if (folderInfo != null)
-								detailView.setText(folderInfo.getDetail(mContext));
-						}
-					});
-			}
-
-			return true;
-		}
-
-		public void destroy() {
-			mDetailLoader.destroy();
-		}
 	}
 
 

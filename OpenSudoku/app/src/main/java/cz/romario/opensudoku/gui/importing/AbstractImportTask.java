@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.db.SudokuDatabase;
 import cz.romario.opensudoku.db.SudokuImportParams;
@@ -32,19 +33,27 @@ import cz.romario.opensudoku.utils.Const;
  */
 public abstract class AbstractImportTask extends
 		AsyncTask<Void, Integer, Boolean> {
-	static final int NUM_OF_PROGRESS_UPDATES = 20;
+    public interface OnImportFinishedListener {
+        /**
+         * Occurs when import is finished.
+         *
+         * @param importSuccessful Indicates whether import was successful.
+         * @param folderId         Contains id of imported folder, or -1 if multiple folders were imported.
+         */
+        void onImportFinished(boolean importSuccessful, long folderId);
+    }
 
+    static final int NUM_OF_PROGRESS_UPDATES = 20;
 	protected Context mContext;
 	private ProgressBar mProgressBar;
-
 	private OnImportFinishedListener mOnImportFinishedListener;
-
 	private SudokuDatabase mDatabase;
 	private FolderInfo mFolder; // currently processed folder
 	private int mFolderCount; // count of processed folders
 	private int mGameCount; //count of processed puzzles
 	private String mImportError;
 	private boolean mImportSuccessful;
+    private SudokuImportParams mImportParams = new SudokuImportParams();
 
 	public void initialize(Context context, ProgressBar progressBar) {
 		mContext = context;
@@ -80,9 +89,9 @@ public abstract class AbstractImportTask extends
 	protected void onPostExecute(Boolean result) {
 		if (result) {
 
-			if (mFolderCount == 1) {
-				Toast.makeText(mContext, mContext.getString(R.string.puzzles_saved, mFolder.name),
-						Toast.LENGTH_LONG).show();
+            if (mFolderCount == 1) {
+                Toast.makeText(mContext, mContext.getString(R.string.puzzles_saved, mFolder.getName()),
+                        Toast.LENGTH_LONG).show();
 			} else if (mFolderCount > 1) {
 				Toast.makeText(mContext, mContext.getString(R.string.folders_created, mFolderCount),
 						Toast.LENGTH_LONG).show();
@@ -94,9 +103,9 @@ public abstract class AbstractImportTask extends
 
 		if (mOnImportFinishedListener != null) {
 			long folderId = -1;
-			if (mFolderCount == 1) {
-				folderId = mFolder.id;
-			}
+            if (mFolderCount == 1) {
+                folderId = mFolder.getId();
+            }
 			mOnImportFinishedListener.onImportFinished(result, folderId);
 		}
 	}
@@ -143,7 +152,6 @@ public abstract class AbstractImportTask extends
 	 */
 	protected abstract void processImport() throws SudokuInvalidFormatException;
 
-
 	/**
 	 * Creates new folder and starts appending puzzles to this folder.
 	 *
@@ -152,7 +160,6 @@ public abstract class AbstractImportTask extends
 	protected void importFolder(String name) {
 		importFolder(name, System.currentTimeMillis());
 	}
-
 
 	/**
 	 * Creates new folder and starts appending puzzles to this folder.
@@ -190,8 +197,6 @@ public abstract class AbstractImportTask extends
 		}
 	}
 
-	private SudokuImportParams mImportParams = new SudokuImportParams();
-
 	/**
 	 * Imports game. Game will be stored in folder, which was set by
 	 * {@link #importFolder(String, boolean)} or {@link #appendToFolder(String)}.
@@ -214,24 +219,14 @@ public abstract class AbstractImportTask extends
 	protected void importGame(SudokuImportParams pars) throws SudokuInvalidFormatException {
 		if (mDatabase == null) {
 			throw new IllegalStateException("Database is not opened.");
-		}
+        }
 
-		mDatabase.importSudoku(mFolder.id, pars);
-	}
+        mDatabase.importSudoku(mFolder.getId(), pars);
+    }
 
 	protected void setError(String error) {
 		mImportError = error;
 		mImportSuccessful = false;
-	}
-
-	public interface OnImportFinishedListener {
-		/**
-		 * Occurs when import is finished.
-		 *
-		 * @param importSuccessful Indicates whether import was successful.
-		 * @param folderId         Contains id of imported folder, or -1 if multiple folders were imported.
-		 */
-		void onImportFinished(boolean importSuccessful, long folderId);
 	}
 
 }

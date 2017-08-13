@@ -90,8 +90,8 @@ public class ClearAllNotesCommand extends AbstractCellCommand {
 		CellCollection cells = getCells();
 
 		mOldNotes.clear();
-		for (int r = 0; r < CellCollection.SUDOKU_SIZE; r++) {
-			for (int c = 0; c < CellCollection.SUDOKU_SIZE; c++) {
+		for (int r = 0; r < CellCollection.Companion.getSUDOKU_SIZE(); r++) {
+			for (int c = 0; c < CellCollection.Companion.getSUDOKU_SIZE(); c++) {
 				Cell cell = cells.getCell(r, c);
 				CellNote note = cell.getNote();
 				if (!note.isEmpty()) {

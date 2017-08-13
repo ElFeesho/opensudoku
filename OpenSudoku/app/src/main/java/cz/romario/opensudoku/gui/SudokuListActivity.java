@@ -95,7 +95,7 @@ public class SudokuListActivity extends AppCompatActivity {
 					CellCollection cells = null;
 					;
 					try {
-						cells = CellCollection.deserialize(data);
+						cells = CellCollection.Companion.deserialize(data);
 					} catch (Exception e) {
 						long id = c.getLong(c.getColumnIndex(SudokuColumns._ID));
 						Log.e(TAG, String.format("Exception occurred when deserializing puzzle with id %s.", id), e);
@@ -358,13 +358,13 @@ public class SudokuListActivity extends AppCompatActivity {
 
 	private void updateTitle() {
 		FolderInfo folder = mDatabase.getFolderInfo(mFolderID);
-		setTitle(folder.name);
+		setTitle(folder.getName());
 
 		mFolderDetailLoader.loadDetailAsync(mFolderID, new FolderDetailCallback() {
 			@Override
 			public void onLoaded(FolderInfo folderInfo) {
 				if (folderInfo != null)
-					setTitle(folderInfo.name + " - " + folderInfo.getDetail(getApplicationContext()));
+					setTitle(folderInfo.getName() + " - " + folderInfo.getDetail(getApplicationContext()));
 			}
 		});
 	}

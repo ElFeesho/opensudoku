@@ -23,10 +23,9 @@ package cz.romario.opensudoku.gui.inputmethod;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
-
-import java.util.Map;
 
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.game.Cell;
@@ -129,21 +128,21 @@ public class IMPopup extends InputMethod {
 			mEditCellDialog.updateNumber(cell.getValue());
 			mEditCellDialog.updateNote(cell.getNote().getNotedNumbers());
 
-			Map<Integer, Integer> valuesUseCount = null;
+			SparseIntArray valuesUseCount = new SparseIntArray();
 			if (mHighlightCompletedValues || mShowNumberTotals)
 				valuesUseCount = mGame.getCells().getValuesUseCount();
 
 			if (mHighlightCompletedValues) {
-				for (Map.Entry<Integer, Integer> entry : valuesUseCount.entrySet()) {
-					if (entry.getValue() >= CellCollection.SUDOKU_SIZE) {
-						mEditCellDialog.highlightNumber(entry.getKey());
+				for (int i = 0; i < valuesUseCount.size(); i++) {
+					if (valuesUseCount.valueAt(valuesUseCount.keyAt(i)) >= CellCollection.Companion.getSUDOKU_SIZE()) {
+						mEditCellDialog.highlightNumber(valuesUseCount.keyAt(i));
 					}
 				}
 			}
 
 			if (mShowNumberTotals) {
-				for (Map.Entry<Integer, Integer> entry : valuesUseCount.entrySet()) {
-					mEditCellDialog.setValueCount(entry.getKey(), entry.getValue());
+				for (int i = 0; i < valuesUseCount.size(); i++) {
+					mEditCellDialog.setValueCount(valuesUseCount.keyAt(i), valuesUseCount.valueAt(valuesUseCount.keyAt(i)));
 				}
 			}
 			mEditCellDialog.show();

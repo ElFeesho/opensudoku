@@ -44,8 +44,8 @@ class CellGroup {
         for (cell in cells) {
             val value = cell.value
             if (cellsByValue.get(value) != null) {
-                cell.setValid(false)
-                cellsByValue.get(value).setValid(false)
+                cell.isValid = false
+                cellsByValue.get(value).isValid = false
             } else {
                 cellsByValue.put(value, cell)
             }

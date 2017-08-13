@@ -69,8 +69,8 @@ public class FillInNotesCommand extends AbstractCellCommand {
 		CellCollection cells = getCells();
 
 		mOldNotes.clear();
-		for (int r = 0; r < CellCollection.SUDOKU_SIZE; r++) {
-			for (int c = 0; c < CellCollection.SUDOKU_SIZE; c++) {
+		for (int r = 0; r < CellCollection.Companion.getSUDOKU_SIZE(); r++) {
+			for (int c = 0; c < CellCollection.Companion.getSUDOKU_SIZE(); c++) {
 				Cell cell = cells.getCell(r, c);
 				mOldNotes.add(new NoteEntry(r, c, cell.getNote()));
 				cell.setNote(new CellNote());
@@ -78,7 +78,7 @@ public class FillInNotesCommand extends AbstractCellCommand {
 				CellGroup row = cell.getRow();
 				CellGroup column = cell.getColumn();
 				CellGroup sector = cell.getSector();
-				for (int i = 1; i <= CellCollection.SUDOKU_SIZE; i++) {
+				for (int i = 1; i <= CellCollection.Companion.getSUDOKU_SIZE(); i++) {
 					if (!row.contains(i) && !column.contains(i) && !sector.contains(i)) {
 						cell.setNote(cell.getNote().addNumber(i));
 					}

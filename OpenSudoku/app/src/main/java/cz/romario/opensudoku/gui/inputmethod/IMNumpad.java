@@ -21,6 +21,7 @@
 package cz.romario.opensudoku.gui.inputmethod;
 
 import android.content.Context;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,203 +43,204 @@ import cz.romario.opensudoku.gui.inputmethod.IMControlPanelStatePersister.StateB
 
 public class IMNumpad extends InputMethod {
 
-	private static final int MODE_EDIT_VALUE = 0;
-	private static final int MODE_EDIT_NOTE = 1;
-	private boolean moveCellSelectionOnPress = true;
-	private boolean mHighlightCompletedValues = true;
-	private boolean mShowNumberTotals = false;
-	private Cell mSelectedCell;
-	private ImageButton mSwitchNumNoteButton;
+    private static final int MODE_EDIT_VALUE = 0;
+    private static final int MODE_EDIT_NOTE = 1;
+    private boolean moveCellSelectionOnPress = true;
+    private boolean mHighlightCompletedValues = true;
+    private boolean mShowNumberTotals = false;
+    private Cell mSelectedCell;
+    private ImageButton mSwitchNumNoteButton;
 
-	private int mEditMode = MODE_EDIT_VALUE;
+    private int mEditMode = MODE_EDIT_VALUE;
 
-	private Map<Integer, Button> mNumberButtons;
-	private OnClickListener mNumberButtonClick = new OnClickListener() {
+    private Map<Integer, Button> mNumberButtons;
+    private OnClickListener mNumberButtonClick = new OnClickListener() {
 
-		@Override
-		public void onClick(View v) {
-			int selNumber = (Integer) v.getTag();
-			Cell selCell = mSelectedCell;
+        @Override
+        public void onClick(View v) {
+            int selNumber = (Integer) v.getTag();
+            Cell selCell = mSelectedCell;
 
-			if (selCell != null) {
-				switch (mEditMode) {
-					case MODE_EDIT_NOTE:
-						if (selNumber == 0) {
-							mGame.setCellNote(selCell, CellNote.Companion.getEMPTY());
-						} else if (selNumber > 0 && selNumber <= 9) {
-							mGame.setCellNote(selCell, selCell.getNote().toggleNumber(selNumber));
-						}
-						break;
-					case MODE_EDIT_VALUE:
-						if (selNumber >= 0 && selNumber <= 9) {
-							mGame.setCellValue(selCell, selNumber);
-							if (isMoveCellSelectionOnPress()) {
-								mBoard.moveCellSelectionRight();
-							}
-						}
-						break;
-				}
-			}
-		}
+            if (selCell != null) {
+                switch (mEditMode) {
+                    case MODE_EDIT_NOTE:
+                        if (selNumber == 0) {
+                            mGame.setCellNote(selCell, CellNote.Companion.getEMPTY());
+                        } else if (selNumber > 0 && selNumber <= 9) {
+                            mGame.setCellNote(selCell, selCell.getNote().toggleNumber(selNumber));
+                        }
+                        break;
+                    case MODE_EDIT_VALUE:
+                        if (selNumber >= 0 && selNumber <= 9) {
+                            mGame.setCellValue(selCell, selNumber);
+                            if (isMoveCellSelectionOnPress()) {
+                                mBoard.moveCellSelectionRight();
+                            }
+                        }
+                        break;
+                }
+            }
+        }
 
-	};
-	private OnChangeListener mOnCellsChangeListener = new OnChangeListener() {
+    };
+    private OnChangeListener mOnCellsChangeListener = new OnChangeListener() {
 
-		@Override
-		public void onChange() {
-			if (mActive) {
-				update();
-			}
-		}
-	};
+        @Override
+        public void onChange() {
+            if (mActive) {
+                update();
+            }
+        }
+    };
 
-	public boolean isMoveCellSelectionOnPress() {
-		return moveCellSelectionOnPress;
-	}
+    public boolean isMoveCellSelectionOnPress() {
+        return moveCellSelectionOnPress;
+    }
 
-	public void setMoveCellSelectionOnPress(boolean moveCellSelectionOnPress) {
-		this.moveCellSelectionOnPress = moveCellSelectionOnPress;
-	}
+    public void setMoveCellSelectionOnPress(boolean moveCellSelectionOnPress) {
+        this.moveCellSelectionOnPress = moveCellSelectionOnPress;
+    }
 
-	public boolean getHighlightCompletedValues() {
-		return mHighlightCompletedValues;
-	}
+    public boolean getHighlightCompletedValues() {
+        return mHighlightCompletedValues;
+    }
 
-	/**
-	 * If set to true, buttons for numbers, which occur in {@link CellCollection}
-	 * more than {@link CellCollection#SUDOKU_SIZE}-times, will be highlighted.
-	 *
-	 * @param highlightCompletedValues
-	 */
-	public void setHighlightCompletedValues(boolean highlightCompletedValues) {
-		mHighlightCompletedValues = highlightCompletedValues;
-	}
+    /**
+     * If set to true, buttons for numbers, which occur in {@link CellCollection}
+     * more than {@link CellCollection#SUDOKU_SIZE}-times, will be highlighted.
+     *
+     * @param highlightCompletedValues
+     */
+    public void setHighlightCompletedValues(boolean highlightCompletedValues) {
+        mHighlightCompletedValues = highlightCompletedValues;
+    }
 
-	public boolean getShowNumberTotals() {
-		return mShowNumberTotals;
-	}
+    public boolean getShowNumberTotals() {
+        return mShowNumberTotals;
+    }
 
-	public void setShowNumberTotals(boolean showNumberTotals) {
-		mShowNumberTotals = showNumberTotals;
-	}
+    public void setShowNumberTotals(boolean showNumberTotals) {
+        mShowNumberTotals = showNumberTotals;
+    }
 
-	@Override
-	protected void initialize(Context context, IMControlPanel controlPanel,
-							  SudokuGame game, SudokuBoardView board, HintsQueue hintsQueue) {
-		super.initialize(context, controlPanel, game, board, hintsQueue);
+    @Override
+    protected void initialize(Context context, IMControlPanel controlPanel,
+                              SudokuGame game, SudokuBoardView board, HintsQueue hintsQueue) {
+        super.initialize(context, controlPanel, game, board, hintsQueue);
 
-		game.getCells().addOnChangeListener(mOnCellsChangeListener);
-	}
+        game.getCells().addOnChangeListener(mOnCellsChangeListener);
+    }
 
-	@Override
-	protected View createControlPanelView() {
-		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View controlPanel = inflater.inflate(R.layout.im_numpad, null);
+    @Override
+    protected View createControlPanelView() {
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View controlPanel = inflater.inflate(R.layout.im_numpad, null);
 
-		mNumberButtons = new HashMap<Integer, Button>();
-		mNumberButtons.put(1, (Button) controlPanel.findViewById(R.id.button_1));
-		mNumberButtons.put(2, (Button) controlPanel.findViewById(R.id.button_2));
-		mNumberButtons.put(3, (Button) controlPanel.findViewById(R.id.button_3));
-		mNumberButtons.put(4, (Button) controlPanel.findViewById(R.id.button_4));
-		mNumberButtons.put(5, (Button) controlPanel.findViewById(R.id.button_5));
-		mNumberButtons.put(6, (Button) controlPanel.findViewById(R.id.button_6));
-		mNumberButtons.put(7, (Button) controlPanel.findViewById(R.id.button_7));
-		mNumberButtons.put(8, (Button) controlPanel.findViewById(R.id.button_8));
-		mNumberButtons.put(9, (Button) controlPanel.findViewById(R.id.button_9));
-		mNumberButtons.put(0, (Button) controlPanel.findViewById(R.id.button_clear));
+        mNumberButtons = new HashMap<Integer, Button>();
+        mNumberButtons.put(1, (Button) controlPanel.findViewById(R.id.button_1));
+        mNumberButtons.put(2, (Button) controlPanel.findViewById(R.id.button_2));
+        mNumberButtons.put(3, (Button) controlPanel.findViewById(R.id.button_3));
+        mNumberButtons.put(4, (Button) controlPanel.findViewById(R.id.button_4));
+        mNumberButtons.put(5, (Button) controlPanel.findViewById(R.id.button_5));
+        mNumberButtons.put(6, (Button) controlPanel.findViewById(R.id.button_6));
+        mNumberButtons.put(7, (Button) controlPanel.findViewById(R.id.button_7));
+        mNumberButtons.put(8, (Button) controlPanel.findViewById(R.id.button_8));
+        mNumberButtons.put(9, (Button) controlPanel.findViewById(R.id.button_9));
+        mNumberButtons.put(0, (Button) controlPanel.findViewById(R.id.button_clear));
 
-		for (Integer num : mNumberButtons.keySet()) {
-			Button b = mNumberButtons.get(num);
-			b.setTag(num);
-			b.setOnClickListener(mNumberButtonClick);
-		}
+        for (Integer num : mNumberButtons.keySet()) {
+            Button b = mNumberButtons.get(num);
+            b.setTag(num);
+            b.setOnClickListener(mNumberButtonClick);
+        }
 
-		mSwitchNumNoteButton = (ImageButton) controlPanel.findViewById(R.id.switch_num_note);
-		mSwitchNumNoteButton.setOnClickListener(new OnClickListener() {
+        mSwitchNumNoteButton = (ImageButton) controlPanel.findViewById(R.id.switch_num_note);
+        mSwitchNumNoteButton.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				mEditMode = mEditMode == MODE_EDIT_VALUE ? MODE_EDIT_NOTE : MODE_EDIT_VALUE;
-				update();
-			}
+            @Override
+            public void onClick(View v) {
+                mEditMode = mEditMode == MODE_EDIT_VALUE ? MODE_EDIT_NOTE : MODE_EDIT_VALUE;
+                update();
+            }
 
-		});
+        });
 
-		return controlPanel;
+        return controlPanel;
 
-	}
+    }
 
-	@Override
-	public int getNameResID() {
-		return R.string.numpad;
-	}
+    @Override
+    public int getNameResID() {
+        return R.string.numpad;
+    }
 
-	@Override
-	public int getHelpResID() {
-		return R.string.im_numpad_hint;
-	}
+    @Override
+    public int getHelpResID() {
+        return R.string.im_numpad_hint;
+    }
 
-	@Override
-	public String getAbbrName() {
-		return mContext.getString(R.string.numpad_abbr);
-	}
+    @Override
+    public String getAbbrName() {
+        return mContext.getString(R.string.numpad_abbr);
+    }
 
-	@Override
-	protected void onActivated() {
-		update();
+    @Override
+    protected void onActivated() {
+        update();
 
-		mSelectedCell = mBoard.getSelectedCell();
-	}
+        mSelectedCell = mBoard.getSelectedCell();
+    }
 
-	@Override
-	protected void onCellSelected(Cell cell) {
-		mSelectedCell = cell;
-	}
+    @Override
+    protected void onCellSelected(Cell cell) {
+        mSelectedCell = cell;
+    }
 
-	private void update() {
-		switch (mEditMode) {
-			case MODE_EDIT_NOTE:
-				mSwitchNumNoteButton.setImageResource(R.drawable.pencil);
-				break;
-			case MODE_EDIT_VALUE:
-				mSwitchNumNoteButton.setImageResource(R.drawable.pencil_disabled);
-				break;
-		}
+    private void update() {
+        switch (mEditMode) {
+            case MODE_EDIT_NOTE:
+                mSwitchNumNoteButton.setImageResource(R.drawable.pencil);
+                break;
+            case MODE_EDIT_VALUE:
+                mSwitchNumNoteButton.setImageResource(R.drawable.pencil_disabled);
+                break;
+        }
 
-		Map<Integer, Integer> valuesUseCount = null;
-		if (mHighlightCompletedValues || mShowNumberTotals)
-			valuesUseCount = mGame.getCells().getValuesUseCount();
+        SparseIntArray valuesUseCount = new SparseIntArray();
+        if (mHighlightCompletedValues || mShowNumberTotals) {
+            valuesUseCount = mGame.getCells().getValuesUseCount();
+        }
 
-		if (mHighlightCompletedValues) {
-			for (Map.Entry<Integer, Integer> entry : valuesUseCount.entrySet()) {
-				boolean highlightValue = entry.getValue() >= CellCollection.SUDOKU_SIZE;
-				Button b = mNumberButtons.get(entry.getKey());
-				if (highlightValue) {
-					b.setBackgroundResource(R.drawable.btn_completed_bg);
-				} else {
-					b.setBackgroundResource(R.drawable.btn_default_bg);
-				}
-			}
-		}
+        if (mHighlightCompletedValues) {
+            for (int i = 0; i < valuesUseCount.size(); i++) {
+                boolean highlightValue = valuesUseCount.valueAt(valuesUseCount.keyAt(i)) >= CellCollection.Companion.getSUDOKU_SIZE();
+                Button b = mNumberButtons.get(valuesUseCount.keyAt(i));
+                if (highlightValue) {
+                    b.setBackgroundResource(R.drawable.btn_completed_bg);
+                } else {
+                    b.setBackgroundResource(R.drawable.btn_default_bg);
+                }
+            }
+        }
 
-		if (mShowNumberTotals) {
-			for (Map.Entry<Integer, Integer> entry : valuesUseCount.entrySet()) {
-				Button b = mNumberButtons.get(entry.getKey());
-				b.setText(entry.getKey() + " (" + entry.getValue() + ")");
-			}
-		}
-	}
+        if (mShowNumberTotals) {
+            for (int i = 0; i < valuesUseCount.size(); i++) {
+                Button b = mNumberButtons.get(i);
+                b.setText(valuesUseCount.keyAt(i) + " (" + valuesUseCount.valueAt(i) + ")");
+            }
+        }
+    }
 
-	@Override
-	protected void onSaveState(StateBundle outState) {
-		outState.putInt("editMode", mEditMode);
-	}
+    @Override
+    protected void onSaveState(StateBundle outState) {
+        outState.putInt("editMode", mEditMode);
+    }
 
-	@Override
-	protected void onRestoreState(StateBundle savedState) {
-		mEditMode = savedState.getInt("editMode", MODE_EDIT_VALUE);
-		if (isInputMethodViewCreated()) {
-			update();
-		}
-	}
+    @Override
+    protected void onRestoreState(StateBundle savedState) {
+        mEditMode = savedState.getInt("editMode", MODE_EDIT_VALUE);
+        if (isInputMethodViewCreated()) {
+            update();
+        }
+    }
 }

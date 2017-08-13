@@ -27,6 +27,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteStatement;
+
 import cz.romario.opensudoku.game.CellCollection;
 import cz.romario.opensudoku.game.FolderInfo;
 import cz.romario.opensudoku.game.SudokuGame;
@@ -54,8 +55,9 @@ public class SudokuDatabase {
 	public static final String FOLDER_TABLE_NAME = "folder";
 
 	//private static final String TAG = "SudokuDatabase";
-
+	private static final String INBOX_FOLDER_NAME = "Inbox";
 	private DatabaseHelper mOpenHelper;
+	private SQLiteStatement mInsertSudokuStatement;
 
 	public SudokuDatabase(Context context) {
 		mOpenHelper = new DatabaseHelper(context);
@@ -96,12 +98,7 @@ public class SudokuDatabase {
 			if (c.moveToFirst()) {
 				long id = c.getLong(c.getColumnIndex(FolderColumns._ID));
 				String name = c.getString(c.getColumnIndex(FolderColumns.NAME));
-
-				FolderInfo folderInfo = new FolderInfo();
-				folderInfo.id = id;
-				folderInfo.name = name;
-
-				return folderInfo;
+				return new FolderInfo(id, name);
 			} else {
 				return null;
 			}
@@ -138,12 +135,12 @@ public class SudokuDatabase {
 					folder = new FolderInfo(id, name);
 				}
 
-				folder.puzzleCount += count;
+				folder.setPuzzleCount(folder.getPuzzleCount() + count);
 				if (state == SudokuGame.GAME_STATE_COMPLETED) {
-					folder.solvedCount += count;
+					folder.setSolvedCount(folder.getSolvedCount() + count);
 				}
 				if (state == SudokuGame.GAME_STATE_PLAYING) {
-					folder.playingCount += count;
+					folder.setPlayingCount(folder.getPlayingCount() + count);
 				}
 			}
 		} finally {
@@ -154,8 +151,6 @@ public class SudokuDatabase {
 
 		return folder;
 	}
-
-	private static final String INBOX_FOLDER_NAME = "Inbox";
 
 	/**
 	 * Returns folder which acts as a holder for puzzles imported without folder.
@@ -175,7 +170,6 @@ public class SudokuDatabase {
 	 * Find folder by name. If no folder is found, null is returned.
 	 *
 	 * @param folderName
-	 * @param db
 	 * @return
 	 */
 	public FolderInfo findFolder(String folderName) {
@@ -193,12 +187,7 @@ public class SudokuDatabase {
 			if (c.moveToFirst()) {
 				long id = c.getLong(c.getColumnIndex(FolderColumns._ID));
 				String name = c.getString(c.getColumnIndex(FolderColumns.NAME));
-
-				FolderInfo folderInfo = new FolderInfo();
-				folderInfo.id = id;
-				folderInfo.name = name;
-
-				return folderInfo;
+				return new FolderInfo(id, name);
 			} else {
 				return null;
 			}
@@ -224,10 +213,7 @@ public class SudokuDatabase {
 		rowId = db.insert(FOLDER_TABLE_NAME, FolderColumns._ID, values);
 
 		if (rowId > 0) {
-			FolderInfo fi = new FolderInfo();
-			fi.id = rowId;
-			fi.name = name;
-			return fi;
+			return new FolderInfo(rowId, name);
 		}
 
 		throw new SQLException(String.format("Failed to insert folder '%s'.", name));
@@ -325,7 +311,7 @@ public class SudokuDatabase {
 				s = new SudokuGame();
 				s.setId(id);
 				s.setCreated(created);
-				s.setCells(CellCollection.deserialize(data));
+				s.setCells(CellCollection.Companion.deserialize(data));
 				s.setLastPlayed(lastPlayed);
 				s.setState(state);
 				s.setTime(time);
@@ -338,7 +324,6 @@ public class SudokuDatabase {
 		return s;
 
 	}
-
 
 	/**
 	 * Inserts new puzzle into the database.
@@ -366,15 +351,13 @@ public class SudokuDatabase {
 		throw new SQLException("Failed to insert sudoku.");
 	}
 
-	private SQLiteStatement mInsertSudokuStatement;
-
 	public long importSudoku(long folderID, SudokuImportParams pars) throws SudokuInvalidFormatException {
 		if (pars.data == null) {
 			throw new SudokuInvalidFormatException(pars.data);
 		}
 
-		if (!CellCollection.isValid(pars.data, CellCollection.DATA_VERSION_PLAIN)) {
-			if (!CellCollection.isValid(pars.data, CellCollection.DATA_VERSION_1)) {
+		if (!CellCollection.Companion.isValid(pars.data, CellCollection.Companion.getDATA_VERSION_PLAIN())) {
+			if (!CellCollection.Companion.isValid(pars.data, CellCollection.Companion.getDATA_VERSION_1())) {
 				throw new SudokuInvalidFormatException(pars.data);
 			}
 		}

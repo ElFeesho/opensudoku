@@ -489,8 +489,8 @@ public class SudokuBoardView extends View {
 	 * @return True, if cell was successfuly selected.
 	 */
 	private boolean moveCellSelectionTo(int row, int col) {
-		if (col >= 0 && col < CellCollection.SUDOKU_SIZE
-				&& row >= 0 && row < CellCollection.SUDOKU_SIZE) {
+		if (col >= 0 && col < CellCollection.Companion.getSUDOKU_SIZE()
+				&& row >= 0 && row < CellCollection.Companion.getSUDOKU_SIZE()) {
 			mSelectedCell = mCells.getCell(row, col);
 			onCellSelected(mSelectedCell);
 
@@ -516,8 +516,8 @@ public class SudokuBoardView extends View {
 		int row = (int) (ly / mCellHeight);
 		int col = (int) (lx / mCellWidth);
 
-		if (col >= 0 && col < CellCollection.SUDOKU_SIZE
-				&& row >= 0 && row < CellCollection.SUDOKU_SIZE) {
+		if (col >= 0 && col < CellCollection.Companion.getSUDOKU_SIZE()
+				&& row >= 0 && row < CellCollection.Companion.getSUDOKU_SIZE()) {
 			return mCells.getCell(row, col);
 		} else {
 			return null;

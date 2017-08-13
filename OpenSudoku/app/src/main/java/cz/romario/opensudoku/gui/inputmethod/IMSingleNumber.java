@@ -23,6 +23,7 @@ package cz.romario.opensudoku.gui.inputmethod;
 import android.content.Context;
 import android.graphics.LightingColorFilter;
 import android.os.Handler;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -197,16 +198,16 @@ public class IMSingleNumber extends InputMethod {
 					}
 				}
 
-				Map<Integer, Integer> valuesUseCount = null;
+				SparseIntArray valuesUseCount = new SparseIntArray();
 				if (mHighlightCompletedValues || mShowNumberTotals)
 					valuesUseCount = mGame.getCells().getValuesUseCount();
 
 				if (mHighlightCompletedValues) {
 					int completedTextColor = mContext.getResources().getColor(R.color.im_number_button_completed_text);
-					for (Map.Entry<Integer, Integer> entry : valuesUseCount.entrySet()) {
-						boolean highlightValue = entry.getValue() >= CellCollection.SUDOKU_SIZE;
+					for (int i = 0, j = 0; i < valuesUseCount.size(); j = valuesUseCount.keyAt(i++)) {
+						boolean highlightValue = valuesUseCount.valueAt(j) >= CellCollection.Companion.getSUDOKU_SIZE();
 						if (highlightValue) {
-							Button b = mNumberButtons.get(entry.getKey());
+							Button b = mNumberButtons.get(j);
 							if (b.getTag().equals(mSelectedNumber)) {
 								b.setTextColor(completedTextColor);
 							} else {
@@ -217,12 +218,12 @@ public class IMSingleNumber extends InputMethod {
 				}
 
 				if (mShowNumberTotals) {
-					for (Map.Entry<Integer, Integer> entry : valuesUseCount.entrySet()) {
-						Button b = mNumberButtons.get(entry.getKey());
+					for (int i = 0, j = 0; i < valuesUseCount.size(); j = valuesUseCount.keyAt(i++)) {
+						Button b = mNumberButtons.get(j);
 						if (!b.getTag().equals(mSelectedNumber))
-							b.setText(entry.getKey() + " (" + entry.getValue() + ")");
+							b.setText(j + " (" + valuesUseCount.valueAt(j) + ")");
 						else
-							b.setText("" + entry.getKey());
+							b.setText("" + j);
 					}
 				}
 			}
