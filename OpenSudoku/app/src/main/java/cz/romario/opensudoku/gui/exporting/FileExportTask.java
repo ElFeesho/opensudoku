@@ -27,12 +27,6 @@ import cz.romario.opensudoku.utils.Const;
 public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Void> {
 
     public interface OnExportFinishedListener {
-        /**
-         * Occurs when export is finished.
-         *
-         * @param importSuccessful Indicates whether export was successful.
-         * @param folderId         Contains id of imported folder, or -1 if multiple folders were imported.
-         */
         void onExportFinished(FileExportTaskResult result);
     }
 
@@ -43,10 +37,6 @@ public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Voi
 	public FileExportTask(Context context) {
 		mContext = context;
 		mGuiHandler = new Handler();
-	}
-
-	public OnExportFinishedListener getOnExportFinishedListener() {
-		return mOnExportFinishedListener;
 	}
 
 	public void setOnExportFinishedListener(OnExportFinishedListener listener) {
@@ -132,15 +122,15 @@ public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Voi
 					attribute(serializer, "created", cursor, "folder_created");
                 }
 
-                String data = cursor.getString(cursor.getColumnIndex(SudokuColumns.Companion.getDATA()));
+                String data = cursor.getString(cursor.getColumnIndex(SudokuColumns.DATA));
                 if (data != null) {
 					serializer.startTag("", "game");
-                    attribute(serializer, "created", cursor, SudokuColumns.Companion.getCREATED());
-                    attribute(serializer, "state", cursor, SudokuColumns.Companion.getSTATE());
-                    attribute(serializer, "time", cursor, SudokuColumns.Companion.getTIME());
-                    attribute(serializer, "last_played", cursor, SudokuColumns.Companion.getLAST_PLAYED());
-                    attribute(serializer, "data", cursor, SudokuColumns.Companion.getDATA());
-                    attribute(serializer, "note", cursor, SudokuColumns.Companion.getPUZZLE_NOTE());
+                    attribute(serializer, "created", cursor, SudokuColumns.CREATED);
+                    attribute(serializer, "state", cursor, SudokuColumns.STATE);
+                    attribute(serializer, "time", cursor, SudokuColumns.TIME);
+                    attribute(serializer, "last_played", cursor, SudokuColumns.LAST_PLAYED);
+                    attribute(serializer, "data", cursor, SudokuColumns.DATA);
+                    attribute(serializer, "note", cursor, SudokuColumns.PUZZLE_NOTE);
                     serializer.endTag("", "game");
 				}
 			}

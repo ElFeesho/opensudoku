@@ -24,12 +24,19 @@ import android.provider.BaseColumns
 
 abstract class SudokuColumns : BaseColumns {
     companion object {
+        @JvmField
         val FOLDER_ID = "folder_id"
+        @JvmField
         val CREATED = "created"
+        @JvmField
         val STATE = "state"
+        @JvmField
         val TIME = "time"
+        @JvmField
         val LAST_PLAYED = "last_played"
+        @JvmField
         val DATA = "data"
+        @JvmField
         val PUZZLE_NOTE = "puzzle_note"
     }
 }

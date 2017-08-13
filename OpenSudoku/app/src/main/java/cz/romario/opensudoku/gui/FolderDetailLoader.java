@@ -20,12 +20,13 @@
 
 package cz.romario.opensudoku.gui;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import cz.romario.opensudoku.db.SudokuDatabase;
 import cz.romario.opensudoku.game.FolderInfo;
 
@@ -41,48 +42,44 @@ import cz.romario.opensudoku.game.FolderInfo;
  */
 public class FolderDetailLoader {
 
-	private static final String TAG = "FolderDetailLoader";
+    public interface FolderDetailCallback {
+        void onLoaded(FolderInfo folderInfo);
+    }
 
-	private Context mContext;
-	private SudokuDatabase mDatabase;
-	private Handler mGuiHandler;
+    private static final String TAG = "FolderDetailLoader";
+    private SudokuDatabase mDatabase;
+    private Handler mGuiHandler;
 	private ExecutorService mLoaderService = Executors.newSingleThreadExecutor();
 
 	public FolderDetailLoader(Context context) {
-		mContext = context;
-		mDatabase = new SudokuDatabase(mContext);
-		mGuiHandler = new Handler();
+        mDatabase = new SudokuDatabase(context);
+        mGuiHandler = new Handler();
 	}
 
-	public void loadDetailAsync(long folderID, FolderDetailCallback loadedCallback) {
-		final long folderIDFinal = folderID;
-		final FolderDetailCallback loadedCallbackFinal = loadedCallback;
-		mLoaderService.execute(new Runnable() {
-			@Override
+    public void loadDetailAsync(final long folderID, final FolderDetailCallback loadedCallback) {
+        mLoaderService.execute(new Runnable() {
+            @Override
 			public void run() {
 				try {
-					final FolderInfo folderInfo = mDatabase.getFolderInfoFull(folderIDFinal);
+                    final FolderInfo folderInfo = mDatabase.getFolderInfoFull(folderID);
 
-					mGuiHandler.post(new Runnable() {
-						@Override
-						public void run() {
-							loadedCallbackFinal.onLoaded(folderInfo);
-						}
-					});
-				} catch (Exception e) {
-					// this is some unimportant background stuff, do not fail
+                    if (folderInfo != null) {
+                        mGuiHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadedCallback.onLoaded(folderInfo);
+                            }
+                        });
+                    }
+                } catch (Exception e) {
 					Log.e(TAG, "Error occured while loading full folder info.", e);
 				}
 			}
 		});
 	}
 
-	public void destroy() {
-		mLoaderService.shutdownNow();
+    void destroy() {
+        mLoaderService.shutdownNow();
 		mDatabase.close();
-	}
-
-	public interface FolderDetailCallback {
-		void onLoaded(FolderInfo folderInfo);
 	}
 }

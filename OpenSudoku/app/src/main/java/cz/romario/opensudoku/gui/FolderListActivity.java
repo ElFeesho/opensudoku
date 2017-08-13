@@ -133,8 +133,8 @@ public class FolderListActivity extends AppCompatActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Intent i = new Intent(FolderListActivity.this, SudokuListActivity.class);
-				i.putExtra(SudokuListActivity.EXTRA_FOLDER_ID, id);
-				startActivity(i);
+                i.putExtra(SudokuListActivity.Companion.getEXTRA_FOLDER_ID(), id);
+                startActivity(i);
 			}
 		});
 

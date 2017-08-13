@@ -7,12 +7,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 import android.widget.ProgressBar;
+
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.gui.importing.AbstractImportTask;
+import cz.romario.opensudoku.gui.importing.AbstractImportTask.OnImportFinishedListener;
 import cz.romario.opensudoku.gui.importing.ExtrasImportTask;
 import cz.romario.opensudoku.gui.importing.OpenSudokuImportTask;
 import cz.romario.opensudoku.gui.importing.SdmImportTask;
-import cz.romario.opensudoku.gui.importing.AbstractImportTask.OnImportFinishedListener;
 import cz.romario.opensudoku.utils.Const;
 
 /**
@@ -38,6 +39,28 @@ public class SudokuImportActivity extends Activity {
 	public static final String EXTRA_GAMES = "GAMES";
 
 	private static final String TAG = "ImportSudokuActivity";
+	private OnImportFinishedListener mOnImportFinishedListener = new OnImportFinishedListener() {
+
+		@Override
+		public void onImportFinished(boolean importSuccessful, long folderId) {
+			if (importSuccessful) {
+				if (folderId == -1) {
+					// multiple folders were imported, go to folder list
+					Intent i = new Intent(SudokuImportActivity.this,
+							FolderListActivity.class);
+					startActivity(i);
+				} else {
+					// one folder was imported, go to this folder
+					Intent i = new Intent(SudokuImportActivity.this,
+							SudokuListActivity.class);
+					i.putExtra(SudokuListActivity.Companion.getEXTRA_FOLDER_ID(), folderId);
+					startActivity(i);
+				}
+			}
+			// call finish, so this activity won't be part of history
+			finish();
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -93,28 +116,5 @@ public class SudokuImportActivity extends Activity {
 
 		importTask.execute();
 	}
-
-	private OnImportFinishedListener mOnImportFinishedListener = new OnImportFinishedListener() {
-
-		@Override
-		public void onImportFinished(boolean importSuccessful, long folderId) {
-			if (importSuccessful) {
-				if (folderId == -1) {
-					// multiple folders were imported, go to folder list
-					Intent i = new Intent(SudokuImportActivity.this,
-							FolderListActivity.class);
-					startActivity(i);
-				} else {
-					// one folder was imported, go to this folder
-					Intent i = new Intent(SudokuImportActivity.this,
-							SudokuListActivity.class);
-					i.putExtra(SudokuListActivity.EXTRA_FOLDER_ID, folderId);
-					startActivity(i);
-				}
-			}
-			// call finish, so this activity won't be part of history
-			finish();
-		}
-	};
 
 }
