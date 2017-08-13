@@ -206,8 +206,8 @@ public abstract class AbstractImportTask extends
 	 */
 	protected void importGame(String data) throws SudokuInvalidFormatException {
 		mImportParams.clear();
-		mImportParams.data = data;
-		importGame(mImportParams);
+        mImportParams.setData(data);
+        importGame(mImportParams);
 	}
 
 	/**

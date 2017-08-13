@@ -1,5 +1,12 @@
 package cz.romario.opensudoku.gui.importing;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,12 +14,6 @@ import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-
-import android.content.ContentResolver;
-import android.net.Uri;
 import cz.romario.opensudoku.R;
 import cz.romario.opensudoku.db.SudokuImportParams;
 import cz.romario.opensudoku.db.SudokuInvalidFormatException;
@@ -117,12 +118,12 @@ public class OpenSudokuImportTask extends AbstractImportTask {
 					importFolder(name, created);
 				} else if (lastTag.equals("game")) {
 					importParams.clear();
-					importParams.created = parseLong(parser.getAttributeValue(null, "created"), System.currentTimeMillis());
-					importParams.state = parseLong(parser.getAttributeValue(null, "state"), SudokuGame.GAME_STATE_NOT_STARTED);
-					importParams.time = parseLong(parser.getAttributeValue(null, "time"), 0);
-					importParams.lastPlayed = parseLong(parser.getAttributeValue(null, "last_played"), 0);
-					importParams.data = parser.getAttributeValue(null, "data");
-					importParams.note = parser.getAttributeValue(null, "note");
+                    importParams.setCreated(parseLong(parser.getAttributeValue(null, "created"), System.currentTimeMillis()));
+                    importParams.setState(parseLong(parser.getAttributeValue(null, "state"), SudokuGame.GAME_STATE_NOT_STARTED));
+                    importParams.setTime(parseLong(parser.getAttributeValue(null, "time"), 0));
+                    importParams.setLastPlayed(parseLong(parser.getAttributeValue(null, "last_played"), 0));
+                    importParams.setData(parser.getAttributeValue(null, "data"));
+                    importParams.setNote(parser.getAttributeValue(null, "note"));
 
 					importGame(importParams);
 				}

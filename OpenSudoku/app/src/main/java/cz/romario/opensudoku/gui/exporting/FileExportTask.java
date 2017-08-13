@@ -1,19 +1,20 @@
 package cz.romario.opensudoku.gui.exporting;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-
-import org.xmlpull.v1.XmlSerializer;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Xml;
+
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+
 import cz.romario.opensudoku.db.SudokuColumns;
 import cz.romario.opensudoku.db.SudokuDatabase;
 import cz.romario.opensudoku.utils.Const;
@@ -25,9 +26,18 @@ import cz.romario.opensudoku.utils.Const;
  */
 public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Void> {
 
-	private Context mContext;
-	private Handler mGuiHandler;
+    public interface OnExportFinishedListener {
+        /**
+         * Occurs when export is finished.
+         *
+         * @param importSuccessful Indicates whether export was successful.
+         * @param folderId         Contains id of imported folder, or -1 if multiple folders were imported.
+         */
+        void onExportFinished(FileExportTaskResult result);
+    }
 
+    private Context mContext;
+	private Handler mGuiHandler;
 	private OnExportFinishedListener mOnExportFinishedListener;
 
 	public FileExportTask(Context context) {
@@ -120,18 +130,18 @@ public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Voi
 					serializer.startTag("", "folder");
 					attribute(serializer, "name", cursor, "folder_name");
 					attribute(serializer, "created", cursor, "folder_created");
-				}
+                }
 
-				String data = cursor.getString(cursor.getColumnIndex(SudokuColumns.DATA));
-				if (data != null) {
+                String data = cursor.getString(cursor.getColumnIndex(SudokuColumns.Companion.getDATA()));
+                if (data != null) {
 					serializer.startTag("", "game");
-					attribute(serializer, "created", cursor, SudokuColumns.CREATED);
-					attribute(serializer, "state", cursor, SudokuColumns.STATE);
-					attribute(serializer, "time", cursor, SudokuColumns.TIME);
-					attribute(serializer, "last_played", cursor, SudokuColumns.LAST_PLAYED);
-					attribute(serializer, "data", cursor, SudokuColumns.DATA);
-					attribute(serializer, "note", cursor, SudokuColumns.PUZZLE_NOTE);
-					serializer.endTag("", "game");
+                    attribute(serializer, "created", cursor, SudokuColumns.Companion.getCREATED());
+                    attribute(serializer, "state", cursor, SudokuColumns.Companion.getSTATE());
+                    attribute(serializer, "time", cursor, SudokuColumns.Companion.getTIME());
+                    attribute(serializer, "last_played", cursor, SudokuColumns.Companion.getLAST_PLAYED());
+                    attribute(serializer, "data", cursor, SudokuColumns.Companion.getDATA());
+                    attribute(serializer, "note", cursor, SudokuColumns.Companion.getPUZZLE_NOTE());
+                    serializer.endTag("", "game");
 				}
 			}
 			if (generateFolders && currentFolderId != -1) {
@@ -172,16 +182,6 @@ public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Voi
 		if (value != null) {
 			serializer.attribute("", attributeName, value);
 		}
-	}
-
-	public interface OnExportFinishedListener {
-		/**
-		 * Occurs when export is finished.
-		 *
-		 * @param importSuccessful Indicates whether export was successful.
-		 * @param folderId         Contains id of imported folder, or -1 if multiple folders were imported.
-		 */
-		void onExportFinished(FileExportTaskResult result);
 	}
 
 }

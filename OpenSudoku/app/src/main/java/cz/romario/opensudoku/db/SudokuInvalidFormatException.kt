@@ -18,11 +18,10 @@
  * 
  */
 
-package cz.romario.opensudoku.db;
+package cz.romario.opensudoku.db
 
-import android.provider.BaseColumns;
-
-public abstract class FolderColumns implements BaseColumns {
-	public static final String NAME = "name";
-	public static final String CREATED = "created";
+class SudokuInvalidFormatException(val data: String) : Exception("Invalid format of sudoku.") {
+    companion object {
+        private val serialVersionUID = -5415032786641425594L
+    }
 }

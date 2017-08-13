@@ -18,21 +18,18 @@
  * 
  */
 
-package cz.romario.opensudoku.db;
+package cz.romario.opensudoku.db
 
-public class SudokuInvalidFormatException extends Exception {
+import android.provider.BaseColumns
 
-	private static final long serialVersionUID = -5415032786641425594L;
-
-	private final String mData;
-
-	public SudokuInvalidFormatException(String data) {
-		super("Invalid format of sudoku.");
-		mData = data;
-	}
-
-	public String getData() {
-		return mData;
-	}
-
+abstract class SudokuColumns : BaseColumns {
+    companion object {
+        val FOLDER_ID = "folder_id"
+        val CREATED = "created"
+        val STATE = "state"
+        val TIME = "time"
+        val LAST_PLAYED = "last_played"
+        val DATA = "data"
+        val PUZZLE_NOTE = "puzzle_note"
+    }
 }

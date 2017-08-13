@@ -157,8 +157,8 @@ public class FolderListActivity extends AppCompatActivity {
 		mCursor = mDatabase.getFolderList();
 		startManagingCursor(mCursor);
 		mAdapter = new SimpleCursorAdapter(this, R.layout.folder_list_item,
-				mCursor, new String[]{FolderColumns.NAME, FolderColumns._ID},
-				new int[]{R.id.name, R.id.detail});
+                mCursor, new String[]{FolderColumns.Companion.getNAME(), FolderColumns._ID},
+                new int[]{R.id.name, R.id.detail});
 		mFolderListBinder = new FolderListViewBinder(this);
 		mAdapter.setViewBinder(mFolderListBinder);
 
@@ -247,7 +247,7 @@ public class FolderListActivity extends AppCompatActivity {
 			// For some reason the requested item isn't available, do nothing
 			return;
 		}
-		menu.setHeaderTitle(cursor.getString(cursor.getColumnIndex(FolderColumns.NAME)));
+        menu.setHeaderTitle(cursor.getString(cursor.getColumnIndex(FolderColumns.Companion.getNAME())));
 
 		menu.add(0, MENU_ITEM_EXPORT, 0, R.string.export_folder);
 		menu.add(0, MENU_ITEM_RENAME, 1, R.string.rename_folder);

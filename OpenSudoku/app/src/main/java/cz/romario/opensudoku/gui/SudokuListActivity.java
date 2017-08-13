@@ -84,7 +84,7 @@ public class SudokuListActivity extends AppCompatActivity {
 		@Override
 		public boolean setViewValue(View view, Cursor c, int columnIndex) {
 
-			int state = c.getInt(c.getColumnIndex(SudokuColumns.STATE));
+            int state = c.getInt(c.getColumnIndex(SudokuColumns.Companion.getSTATE()));
 
 			TextView label = null;
 
@@ -414,10 +414,10 @@ public class SudokuListActivity extends AppCompatActivity {
 		mListFilter.showStateCompleted = settings.getBoolean(FILTER_STATE_SOLVED, true);
 
 		mAdapter = new SimpleCursorAdapter(this, R.layout.sudoku_list_item,
-				null, new String[]{SudokuColumns.DATA, SudokuColumns.STATE,
-				SudokuColumns.TIME, SudokuColumns.LAST_PLAYED,
-				SudokuColumns.CREATED, SudokuColumns.PUZZLE_NOTE},
-				new int[]{R.id.sudoku_board, R.id.state, R.id.time});
+                null, new String[]{SudokuColumns.Companion.getDATA(), SudokuColumns.Companion.getSTATE(),
+                SudokuColumns.Companion.getTIME(), SudokuColumns.Companion.getLAST_PLAYED(),
+                SudokuColumns.Companion.getCREATED(), SudokuColumns.Companion.getPUZZLE_NOTE()},
+                new int[]{R.id.sudoku_board, R.id.state, R.id.time});
 		mAdapter.setViewBinder(new SudokuListViewBinder(this));
 		updateList();
 		mListView.setAdapter(mAdapter);
